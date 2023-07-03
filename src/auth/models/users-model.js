@@ -1,6 +1,7 @@
-'use strict'
+'ues strict'
 
-const user = (sequelize, DataTypes) => sequelize.define('users', {
+
+module.exports = (sequelize, DataTypes) => sequelize.define('user', {
     userName: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -10,6 +11,5 @@ const user = (sequelize, DataTypes) => sequelize.define('users', {
         type: DataTypes.STRING,
         allowNull: false
     }
-})
 
-module.exports = user
+})

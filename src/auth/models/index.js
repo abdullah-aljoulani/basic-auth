@@ -1,16 +1,15 @@
 'use strict'
 
-const {Sequelize,DataTypes} = require('sequelize') 
+const { Sequelize, DataTypes } = require('sequelize')
 
-const DATA_BASE_URL = process.env.DATA_BASE_URI
+const dataBase_URL = process.env.NODE_ENV === 'test' ? 'sqlite:memory:' : process.env.DB_URL;
 
-let sequelize = new Sequelize(DATA_BASE_URL,{});
+let sequelize = new Sequelize(dataBase_URL, {})
 
-const user = require('./users-model')
+const userTable = require('./users.model')
 
-const userModel = user(sequelize,DataTypes)
 
 module.exports = {
-    db:sequelize,
-    user: userModel
+    DB: sequelize,
+    User: userTable(sequelize, DataTypes)
 }

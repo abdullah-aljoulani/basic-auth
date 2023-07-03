@@ -1,34 +1,30 @@
 'use strict'
 
 const base64 = require('base-64')
-
 const bcrypt = require('bcrypt')
+const { User } = require('../models/index')
 
-const { user } = require('../models/index')
 
-module.exports = async function isAuth(req,res,next){
 
-    const split = await req.headers.authorization.split(" ")
+module.exports = async (req, res, next) => {
+    if (req.headers.authorization) {
+        const basicAuthData = req.headers.authorization
+        const splitBasicWord = basicAuthData.split(' ')
+        const theAutodecodedOnly = splitBasicWord.pop()
+        const decodedData = base64.decode(theAutodecodedOnly)
 
-    const auth = split[1]
+        const [userName, password] = decodedData.split(':');
+        const user = await User.findOne({ where: { userName } });
+        const isValid = await bcrypt.compare(password, user.password)
 
-    if (auth) {
-        const decrypted = base64.decode(auth)
-
-        const [userName, password] = decrypted.split(":")
-
-        const users = await user.findOne({ where: { userName } })
-
-        const isValid = await bcrypt.compare(password, users.password)
         if (isValid) {
-            res.status(200).json(`welcome back ${users.userName}`)
+            req.user = user
             next()
         } else {
-            res.status(500).json('wrong password or username')
+            next({ massage: 'This user is not Authorized!' });
         }
     } else {
-        res.status(500).json({
-            message: 'please enter the username and password'
-        })
+        next({ massage: 'Please enter username and the password' });
     }
+
 }
