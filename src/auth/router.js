@@ -1,39 +1,33 @@
+
 'use strict'
 
 const express = require('express')
-
-const router = express.Router();
+const { User } = require('./models/index')
+const router = express.Router()
 
 const bcrypt = require('bcrypt')
+const basicAuth = require('./middleware/basic')
 
-const isAuth = require('./middleware/basic')
+router.post('/signup', userSignUp)
+router.post('/signin', basicAuth, userSignIn)
 
-const { user } = require('./models/index')
 
-router.get('/', handelHome)
-
-router.post('/signin', isAuth,handelSignIn)
-
-router.post('/signup', handelSignUp)
-
-async function handelSignIn(req, res) {
-    console.log('welcome');
+async function userSignUp(req, res) {
+    const { userName, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 5)
+    const newUser = await User.create({ //to save it in the database
+        userName: userName,
+        password: hashedPassword
+    })
+    res.status(201).json(newUser)
 }
 
-function handelHome(req, res) {
+
+
+function userSignIn(req, res) {
     res.status(200).json({
-        message: 'welcome to home page'
+        user: req.user
     })
 }
 
-async function handelSignUp(req, res) {
-    const { userName, password } = req.body;
-    const hashPass = await bcrypt.hash(password, 5)
-    const obj = {
-        userName: userName,
-        password: hashPass
-    }
-    const record = await user.create(obj)
-    res.status(201).json(record)
-}
 module.exports = router;
