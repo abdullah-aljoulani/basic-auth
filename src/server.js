@@ -1,37 +1,34 @@
 'use strict'
 
-const express = require('express');
+const express=require('express');
 const cors = require('cors');
+const authRouter = require("./auth/router");
+
+const pageNotFound = require('./middleware/404')
+const serverError = require('./middleware/500')
 
 const app = express();
 app.use(cors());
-app.use(express.json())
+app.use(express.json());
 
+const users = require('./auth/models/users-model');
 
-const PageNotFound = require('./middleware/404')
-const serverError = require('./middleware/500')
-const userRouter = require('./auth/router')
-
-
-
-app.get('/', (req, res) => {
+app.get('/', (req, res)=>{
     res.status(200).json({
-        code: 200,
-        message: 'WELCOME!!!!'
+        message: 'WELCOME TO HOME PAGE!!'
     })
 })
 
-app.use(userRouter)
+app.use(authRouter);
 
 
-app.use(serverError)
-app.use('*', PageNotFound)
-
-function start(port) {
-    app.listen(port, () => console.log(`Up & running on port: ${port}`))
+function start(port){
+    app.listen(port, ()=> console.log(`Up an running on port: ${port}`))
 }
+app.use('*' , pageNotFound)
+app.use(serverError)
 
-module.exports = {
-    start,
-    app
+module.exports={
+    start, 
+    app 
 }

@@ -1,33 +1,31 @@
+'use strict';
+const express = require('express');
+const router = express.Router();
 
-'use strict'
+const { User } = require('./models');
+const base64 = require('base-64');
+const bcrypt = require('bcrypt');
+const basicAuthMiddleWare = require('./middleware/basic');
 
-const express = require('express')
-const { User } = require('./models/index')
-const router = express.Router()
+router.post('/signup', handelSignup);
 
-const bcrypt = require('bcrypt')
-const basicAuth = require('./middleware/basic')
+async function handelSignup(req,res){
+  req.body.password= await bcrypt.hash(req.body.password,10);
+  const record = await User.create(req.body);
+  res.status(201).json(record);
+}
 
-router.post('/signup', userSignUp)
-router.post('/signin', basicAuth, userSignIn)
-
-
-async function userSignUp(req, res) {
-    const { userName, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 5)
-    const newUser = await User.create({ //to save it in the database
-        userName: userName,
-        password: hashedPassword
-    })
-    res.status(201).json(newUser)
+router.post('/signin',basicAuthMiddleWare, handelSignin); 
+async function handelSignin(req,res){
+  res.status(200).json(req.user);
 }
 
 
-
-function userSignIn(req, res) {
-    res.status(200).json({
-        user: req.user
-    })
+router.get('/allUsers', handelAllUsers);
+async function handelAllUsers(req,res){
+  const allUsers=await User.findAll();
+  res.status(200).json(allUsers)
 }
 
-module.exports = router;
+
+module.exports=router;
