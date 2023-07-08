@@ -1,30 +1,24 @@
-'use strict'
+'use strict';
+const bcrypt = require('bcrypt');
+const base64 = require('base-64');
+const { User } = require('../models');
 
-const base64 = require('base-64')
-const bcrypt = require('bcrypt')
-const { User } = require('../models/index')
+    async function basicAuthMiddleWare(req, res, next){
+    if(req.headers.authorization){
+      const basicHeaderParts = req.headers.authorization.split(' ');
+      const encodedValues= basicHeaderParts.pop(); 
+      const decodedValues = base64.decode(encodedValues); 
+      const [username, password] = decodedValues.split(':');
 
-
-
-module.exports = async (req, res, next) => {
-    if (req.headers.authorization) {
-        const basicAuthData = req.headers.authorization
-        const splitBasicWord = basicAuthData.split(' ')
-        const theAutodecodedOnly = splitBasicWord.pop()
-        const decodedData = base64.decode(theAutodecodedOnly)
-
-        const [userName, password] = decodedData.split(':');
-        const user = await User.findOne({ where: { userName } });
-        const isValid = await bcrypt.compare(password, user.password)
-
-        if (isValid) {
-            req.user = user
-            next()
-        } else {
-            next({ massage: 'This user is not Authorized!' });
-        }
-    } else {
-        next({ massage: 'Please enter username and the password' });
-    }
-
-}
+      const user = await User.findOne({ where: { username } });
+      const isValid = await bcrypt.compare(password, user.password);
+      if (isValid) {
+        req.user = user;
+        next();
+      }
+      else {
+        res.status(401).send('Invalid password');
+        throw new Error('this user is invalid');
+      }
+  }}
+  module.exports = basicAuthMiddleWare;

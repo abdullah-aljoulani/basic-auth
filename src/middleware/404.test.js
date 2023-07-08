@@ -1,17 +1,26 @@
-'use strict'
+'use strict';
 
+const { app } = require("../server");
+const { db } = require("../auth/models/index");
 const supertest = require('supertest');
-const {app} = require('../server');
 const req = supertest(app);
 
+beforeAll(async () => {
+    await db.sync();
+  })
+
+  afterAll(async () => {
+    await db.drop();
+  })
 describe('Server test', () => {
-    it('Page not found, bad route', async () => {
-    const res = await req.get('/hola');
-    expect(res.status).toEqual(404);
+
+    it('PAGE NOT FOUND', async () => {
+      const res = await req.get('/new');
+      expect(res.status).toEqual(404);
     })
 
-    it('Page not found, bad request', async () => {
-    const res = await req.put('/hola');
-    expect(res.status).toEqual(404);
+    it('PAGE NOT FOUND', async () => {
+      const res = await req.put('/new');
+      expect(res.status).toEqual(404);
     })
-})  
+});

@@ -2,14 +2,13 @@
 
 const { Sequelize, DataTypes } = require('sequelize')
 
-const dataBase_URL = process.env.NODE_ENV === 'test' ? 'sqlite:memory:' : process.env.DB_URL;
+const DATABASE_URL = process.env.NODE_ENV === 'test' ? 'sqlite:memory:' : process.env.DATABASE_URI;
 
-let sequelize = new Sequelize(dataBase_URL, {})
-
-const userTable = require('./users.model')
+let sequelize = new Sequelize(DATABASE_URL, {})
+const User = require('./users-model')
 
 
 module.exports = {
-    DB: sequelize,
-    User: userTable(sequelize, DataTypes)
+    db: sequelize,
+    User: User(sequelize, DataTypes)
 }
